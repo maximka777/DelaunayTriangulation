@@ -1,3 +1,4 @@
+import math
 from math import sqrt
 
 from external.segments_intersection import intersect
@@ -23,26 +24,96 @@ class GreedyTriangulation:
         return triangulation_segments
 
 
+def sqr_side(a, b):
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+
+def get_angle(a, b, c):
+    cos = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
+    if cos > 1:
+        cos = 1
+    elif cos < 0:
+        cos = 0
+    return math.acos(cos)
+
+
+def angles_by_points(a, b, c):
+    return [
+        get_angle(sqr_side(a, b), sqr_side(a, c), sqr_side(b, c)),
+        get_angle(sqr_side(a, b), sqr_side(b, c), sqr_side(a, c)),
+        get_angle(sqr_side(b, c), sqr_side(a, c), sqr_side(a, b))
+    ]
+
+
+def get_min_angle(points):
+    return min(angles_by_points(points[0], points[1], points[2]))
+
+
+def sum_min_angles(triangles):
+    return get_min_angle(triangles[0]) + get_min_angle(triangles[1])
+
+
+def replace_a_on_b_in_triangle(a, b, triangle):
+    triangle.remove(a)
+    triangle.append(b)
+
+
+def get_not_general_point(a, b, triangle):
+    for p in triangle:
+        if p != a and p != b:
+            return p
+
+
 class DelaunayTriangulation:
     def __init__(self, triangles):
         self.triangles = triangles
 
-    def is_delaunay_triangulation(self):
-        return True
+    @staticmethod
+    def make_delaunay_triangulation(triangles):
+        sum_min_angles_a = sum_min_angles(triangles)
+        DelaunayTriangulation.flip(triangles)
+        sum_min_angles_b = sum_min_angles(triangles)
+        if sum_min_angles_a > sum_min_angles_b:
+            DelaunayTriangulation.flip(triangles)
+
+    @staticmethod
+    def is_touched_triangles(tr_a, tr_b):
+        ax, ay, az = tr_a
+        return (ax in tr_b and ay in tr_b) or (ax in tr_b and az in tr_b) or (ay in tr_b and az in tr_b)
+
+    @staticmethod
+    def get_touched_points(tr_a, tr_b):
+        points = []
+        for p in tr_a:
+            if p in tr_b:
+                points.append(p)
+        return points
 
     @staticmethod
     def flip(triangle_pair):
-        pass
+        tr_a, tr_b = triangle_pair
+        a, b = DelaunayTriangulation.get_touched_points(tr_a, tr_b)
+        tr_a_c = get_not_general_point(a, b, tr_a)
+        tr_b_c = get_not_general_point(a, b, tr_b)
+        replace_a_on_b_in_triangle(b, tr_b_c, tr_a)
+        replace_a_on_b_in_triangle(a, tr_a_c, tr_b)
 
-    def get_first_not_delaunay_pair(self):
+    def fix_first_not_delaunay_pair(self):
         tr_a, tr_b = None, None
-
-        return tr_a, tr_b
+        for i in range(len(self.triangles)):
+            tr_a = self.triangles[i]
+            for j in range(i + 1, len(self.triangles)):
+                tr_b = self.triangles[j]
+                if self.is_touched_triangles(tr_a, tr_b):
+                    self.make_delaunay_triangulation([tr_a, tr_b])
+                    return True
+        return False
 
     def make(self):
-        while not self.is_delaunay_triangulation():
-            not_delaunay_triangles_pair = self.get_first_not_delaunay_pair()
-            self.flip(not_delaunay_triangles_pair)
+        if len(self.triangles) == 1:
+            return self.triangles
+        while not self.fix_first_not_delaunay_pair():
+            pass
         return self.triangles
 
 
