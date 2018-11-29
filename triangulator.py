@@ -27,21 +27,33 @@ class DelaunayTriangulation:
     def __init__(self, triangles):
         self.triangles = triangles
 
+    def is_delaunay_triangulation(self):
+        return True
+
+    @staticmethod
+    def flip(triangle_pair):
+        pass
+
+    def get_first_not_delaunay_pair(self):
+        tr_a, tr_b = None, None
+
+        return tr_a, tr_b
+
     def make(self):
+        while not self.is_delaunay_triangulation():
+            not_delaunay_triangles_pair = self.get_first_not_delaunay_pair()
+            self.flip(not_delaunay_triangles_pair)
         return self.triangles
 
 
-def triangle_has_point_from_segment(segment, triangle):
-    seg_a, seg_b = segment
-    for side in triangle:
-        side_a, side_b = side
-        if side_a == seg_a or side_a == seg_b or side_b == seg_a or side_b == seg_b:
-            return True
-    return False
+def is_next_segment(segment, triangle):
+    p_a, p_b = segment
+    triangle_last_segment = triangle[-1]
+    return p_a in triangle_last_segment or p_b in triangle_last_segment
 
 
 def find_triangle_with_point_from_segment(segment, triangles):
-    return list(filter(lambda tr: triangle_has_point_from_segment(segment, tr), triangles))
+    return list(filter(lambda tr: is_next_segment(segment, tr), triangles))
 
 
 def triangle_from_segments_to_triangle_from_points(triangle):
@@ -51,18 +63,42 @@ def triangle_from_segments_to_triangle_from_points(triangle):
             points.append(segment[0])
         if segment[1] not in points:
             points.append(segment[1])
+        if len(points) == 3:
+            break
     return points
+
+
+def add_third_segment_to_triangle(segments, triangle):
+    triangles = []
+    for segment in segments:
+        if is_next_segment(segment, triangle):
+            triangles.append([triangle[0], triangle[1], segment])
+    return triangles
+
+
+def is_correct_triangle(triangle):
+    seg_a = triangle[0]
+    seg_b = triangle[1]
+    seg_c = triangle[2]
+
+    return (seg_a[0] in seg_c and seg_a[0] not in seg_b) or (seg_a[1] in seg_c and seg_a[1] not in seg_b)
+
+
+def add_second_segment_to_triangle(segments, triangle):
+    triangles = []
+    for i in range(len(segments)):
+        segment = segments[i]
+        if is_next_segment(segment, triangle):
+            triangles.extend(add_third_segment_to_triangle(segments[i+1:], [triangle[0], segment]))
+    return triangles
 
 
 def segments_to_triangles(segments):
     triangles = []
-    for segment in segments:
-        triangles_with_point_from_segment = find_triangle_with_point_from_segment(segment, triangles)
-        for triangle in triangles_with_point_from_segment:
-            triangle.append(segment)
-        if len(triangles_with_point_from_segment) == 0:
-            triangles.append([segment])
-    triangles = list(map(triangle_from_segments_to_triangle_from_points, triangles))
+    for i in range(len(segments)):
+        segment = segments[i]
+        triangles.extend(add_second_segment_to_triangle(segments[i+1:], [segment]))
+    triangles = list(map(triangle_from_segments_to_triangle_from_points, filter(is_correct_triangle, triangles)))
     return triangles
 
 
@@ -95,6 +131,7 @@ def triangulate(points):
     segments = generate_segments(points)
     triangulation_segments = GreedyTriangulation(segments).make()
     segments_in_points = [(segment.p1, segment.p2) for segment in triangulation_segments]
+    # return segments_in_points
     triangles = segments_to_triangles(segments_in_points)
     delaunay_triangles = DelaunayTriangulation(triangles).make()
     return delaunay_triangles

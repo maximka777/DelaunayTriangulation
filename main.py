@@ -51,6 +51,7 @@ def main():
             elif event.type == pygame.KEYUP:
                 if event.dict['key'] == 13:
                     triangles = triangulate(dots_to_points(dots))
+                    # lines = triangulate(dots_to_points(dots))
 
         screen.fill(WHITE)
 
@@ -62,9 +63,9 @@ def main():
                 Triangle(triangle).draw(screen)
 
         # when there are segments (from greedy triangulation) instead of triangles
-        # if lines is not None:
-        #     for line in lines:
-        #         Line(line[0], line[1]).draw(screen)
+        if lines is not None:
+            for line in lines:
+                Line(line[0], line[1]).draw(screen)
 
         print_instruction(screen)
 
