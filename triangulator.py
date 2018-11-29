@@ -23,6 +23,49 @@ class GreedyTriangulation:
         return triangulation_segments
 
 
+class DelaunayTriangulation:
+    def __init__(self, triangles):
+        self.triangles = triangles
+
+    def make(self):
+        return self.triangles
+
+
+def triangle_has_point_from_segment(segment, triangle):
+    seg_a, seg_b = segment
+    for side in triangle:
+        side_a, side_b = side
+        if side_a == seg_a or side_a == seg_b or side_b == seg_a or side_b == seg_b:
+            return True
+    return False
+
+
+def find_triangle_with_point_from_segment(segment, triangles):
+    return list(filter(lambda tr: triangle_has_point_from_segment(segment, tr), triangles))
+
+
+def triangle_from_segments_to_triangle_from_points(triangle):
+    points = []
+    for segment in triangle:
+        if segment[0] not in points:
+            points.append(segment[0])
+        if segment[1] not in points:
+            points.append(segment[1])
+    return points
+
+
+def segments_to_triangles(segments):
+    triangles = []
+    for segment in segments:
+        triangles_with_point_from_segment = find_triangle_with_point_from_segment(segment, triangles)
+        for triangle in triangles_with_point_from_segment:
+            triangle.append(segment)
+        if len(triangles_with_point_from_segment) == 0:
+            triangles.append([segment])
+    triangles = list(map(triangle_from_segments_to_triangle_from_points, triangles))
+    return triangles
+
+
 class Segment:
     def __init__(self, p1, p2):
         self.p1 = p1
@@ -51,4 +94,7 @@ def triangulate(points):
         return
     segments = generate_segments(points)
     triangulation_segments = GreedyTriangulation(segments).make()
-    return [(segment.p1, segment.p2) for segment in triangulation_segments]
+    segments_in_points = [(segment.p1, segment.p2) for segment in triangulation_segments]
+    triangles = segments_to_triangles(segments_in_points)
+    delaunay_triangles = DelaunayTriangulation(triangles).make()
+    return delaunay_triangles

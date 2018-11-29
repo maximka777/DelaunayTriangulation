@@ -13,7 +13,7 @@ def read_config():
         return json.load(file)
 
 
-def print_instruction(screen, instruction='Press enter to calculate triangulation (minimal points count: 4)'):
+def print_instruction(screen, instruction='Press enter to calculate triangulation (minimal points count: 3)'):
     if pygame.font:
         font = pygame.font.Font(None, 24)
         text = font.render(instruction, 1, RED)
@@ -50,7 +50,7 @@ def main():
                     dots.append(Dot(event.dict['pos']))
             elif event.type == pygame.KEYUP:
                 if event.dict['key'] == 13:
-                    lines = triangulate(dots_to_points(dots))
+                    triangles = triangulate(dots_to_points(dots))
 
         screen.fill(WHITE)
 
@@ -61,9 +61,10 @@ def main():
             for triangle in triangles:
                 Triangle(triangle).draw(screen)
 
-        if lines is not None:
-            for line in lines:
-                Line(line[0], line[1]).draw(screen)
+        # when there are segments (from greedy triangulation) instead of triangles
+        # if lines is not None:
+        #     for line in lines:
+        #         Line(line[0], line[1]).draw(screen)
 
         print_instruction(screen)
 
