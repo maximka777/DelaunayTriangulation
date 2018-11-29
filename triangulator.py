@@ -198,7 +198,7 @@ def generate_segments(points):  # it generates all variants of lines between all
 
 def triangulate(points):
     if len(points) < 3:
-        return
+        return []
     segments = generate_segments(points)
     triangulation_segments = GreedyTriangulation(segments).make()
     segments_in_points = [(segment.p1, segment.p2) for segment in triangulation_segments]

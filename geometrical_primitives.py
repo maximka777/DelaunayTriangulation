@@ -35,3 +35,7 @@ class Dot:
 
     def draw(self, surface):
         pygame.draw.circle(surface, self.color, self.p, self.radius, self.width)
+
+
+class Circle(Dot):
+    pass
