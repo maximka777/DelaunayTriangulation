@@ -29,6 +29,8 @@ def sqr_side(a, b):
 
 
 def get_angle(a, b, c):
+    if a * b == 0:
+        return 0
     cos = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
     if cos > 1:
         cos = 1
@@ -92,7 +94,8 @@ class DelaunayTriangulation:
     @staticmethod
     def flip(triangle_pair):
         tr_a, tr_b = triangle_pair
-        a, b = DelaunayTriangulation.get_touched_points(tr_a, tr_b)
+        # because someway it can have more than 2 items
+        a, b = DelaunayTriangulation.get_touched_points(tr_a, tr_b)[:2]
         tr_a_c = get_not_general_point(a, b, tr_a)
         tr_b_c = get_not_general_point(a, b, tr_b)
         replace_a_on_b_in_triangle(b, tr_b_c, tr_a)
