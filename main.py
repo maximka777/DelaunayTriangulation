@@ -57,11 +57,12 @@ def main():
     width = config['size']['width']
     height = config['size']['height']
 
-    size = (width, height)
-
     pygame.init()
 
-    screen = pygame.display.set_mode(size)
+    screen_info = pygame.display.Info()
+    size = (screen_info.current_w, screen_info.current_h)
+
+    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 
     dots = []
     triangles = []
@@ -82,6 +83,8 @@ def main():
                     dots = []
                     triangles = []
                     lines = []
+                elif event.dict['key'] == pygame.K_q:
+                    sys.exit()
 
         screen.fill(BLACK)
 
