@@ -9,4 +9,4 @@ Enter - to build triangulation
 r - to clear points set
 
 ### Example of work
-![Example](https://ibb.co/KWTkTpx)
+![Example](https://i.ibb.co/3cgqg9m/example.png)
