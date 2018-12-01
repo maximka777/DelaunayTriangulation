@@ -62,7 +62,8 @@ def main():
     screen_info = pygame.display.Info()
     size = (screen_info.current_w, screen_info.current_h)
 
-    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+    # screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+    screen = pygame.display.set_mode(size)
 
     dots = []
     triangles = []
@@ -98,9 +99,9 @@ def main():
                 Triangle(triangle).draw(screen)
 
         # when there are segments (from greedy triangulation) instead of triangles
-        # if lines is not None:
-        #     for line in lines:
-        #         Line(line[0], line[1]).draw(screen)
+        if lines is not None:
+            for line in lines:
+                Line(line[0], line[1]).draw(screen)
 
         print_instruction(screen)
 
