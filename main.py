@@ -62,8 +62,7 @@ def main():
     screen_info = pygame.display.Info()
     size = (screen_info.current_w, screen_info.current_h)
 
-    # screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-    screen = pygame.display.set_mode(size)
+    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 
     dots = []
     triangles = []
